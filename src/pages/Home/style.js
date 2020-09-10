@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { Select, Button } from "antd";
+import { Select, Button, Table } from "antd";
 
 export const SelectS = styled(Select)`
   background: #ffffff;
@@ -22,8 +22,26 @@ export const SelectS = styled(Select)`
   }
 `;
 
+export const TableS = styled(Table)`
+  label {
+    span {
+      input {
+        &:hover {
+          border-color: #ff7600 !important;
+          ::selection {
+            background: #ff7600 !important;
+          }
+        }
+      }
+      span {
+        border-color: #ff7600 !important;
+      }
+    }
+  }
+`;
+
 export const ButtonS = styled(Button)`
-  background: #dadada;
+  background: #ff7600;
   border-radius: 2px;
 
   font-family: Montserrat;

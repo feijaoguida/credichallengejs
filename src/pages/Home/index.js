@@ -3,9 +3,16 @@ import React, { useState } from "react";
 
 import "antd/dist/antd.css";
 
-import { Layout, Table, message } from "antd";
+import { Layout, message, Modal } from "antd";
 
-import { SelectS, ButtonS, FlexFooter, ContentLayoutS, TitleS } from "./style";
+import {
+  SelectS,
+  ButtonS,
+  FlexFooter,
+  ContentLayoutS,
+  TitleS,
+  TableS,
+} from "./style";
 
 import HeaderAnt from "../../components/Header";
 import FooterAnt from "../../components/Footer";
@@ -48,6 +55,7 @@ function Home() {
   const [selectedRowId, setSelectedRowId] = useState([]);
   const [users, setUser] = useState(usersJson.data);
   const [selectedSelect, setSelectedSelect] = useState("Escolha uma Ação");
+  const [visibleModal, setVisibleModal] = useState(false);
 
   const onSelectChange = (selectedRowId) => {
     setSelectedRowId(selectedRowId);
@@ -62,22 +70,36 @@ function Home() {
     setSelectedSelect(value);
   }
 
-  function handleClick(value) {
+  function handleValidationClick() {
     if (!selectedRowId.length > 0) {
       message.info(`Você deve selecionar uma linha`);
-      return;
+      handleCancel();
+      return false;
     }
+
+    if (selectedSelect === "Escolha uma Ação") {
+      message.info(`Você deve selecionar uma opção`);
+      handleCancel();
+      return false;
+    }
+    return true;
+  }
+
+  function handleClick(value) {
     switch (selectedSelect) {
       case "archive":
         message.info(`Clicou no ${selectedSelect} e o CB é ${selectedRowId}`);
         filterUser();
+        handleCancel();
         break;
       case "approve":
         message.info(`Clicou no ${selectedSelect} e o CB é ${selectedRowId}`);
         filterUser();
+        handleCancel();
         break;
       default:
         message.info(`Você deve selecionar uma opção`);
+        handleCancel();
     }
     function filterUser() {
       setUser(
@@ -86,6 +108,18 @@ function Home() {
         })
       );
     }
+  }
+
+  function handleShowModal() {
+    if (!handleValidationClick()) {
+      return;
+    }
+
+    setVisibleModal(true);
+  }
+
+  function handleCancel() {
+    setVisibleModal(false);
   }
 
   function footer() {
@@ -102,9 +136,19 @@ function Home() {
           <Option value="archive">Arquivar</Option>
           <Option value="approve">Aprovar</Option>
         </SelectS>
-        <ButtonS onClick={() => handleClick([selectedRowId])}>
-          {selectedSelect}
-        </ButtonS>
+
+        <ButtonS onClick={() => handleShowModal()}>{selectedSelect}</ButtonS>
+        <Modal
+          title={`Aceitar ${selectedRowId.length} solicitações`}
+          visible={visibleModal}
+          onOk={() => handleClick([selectedRowId])}
+          onCancel={() => handleCancel()}
+        >
+          <p>
+            Você tem colaboradores {selectedRowId.length} selecionados em todas
+            páginas. Tem certeza que deseja aceitar todas as solicitações?
+          </p>
+        </Modal>
       </FlexFooter>
     );
     //return "Here is footer";
@@ -127,7 +171,7 @@ function Home() {
         <ContentLayoutS>
           <TitleS>Solicitação de Emprestimo</TitleS>
           <div>
-            <Table
+            <TableS
               footer={() => footer()}
               rowSelection={rowSelection}
               columns={columns}
